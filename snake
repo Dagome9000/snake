@@ -1,0 +1,144 @@
+import pygame
+import random
+
+#            R    G    B
+GRAY = (100, 100, 100)
+NAVYBLUE = (60, 60, 100)
+WHITE = (255, 255, 255)
+RED = (255, 0, 0)
+GREEN = (0, 255, 0)
+BLUE = (0, 0, 255)
+YELLOW = (255, 255, 0)
+ORANGE = (255, 128, 0)
+PURPLE = (255, 0, 255)
+CYAN = (0, 255, 255)
+BLACK = (0, 0, 0)
+COMBLUE = (233, 232, 255)
+pygame.init()
+pygame.font.init
+resx = 800
+resy = 600
+screen = pygame.display.set_mode((resx+40, resy+40))
+clock = pygame.time.Clock()
+font = pygame.font.Font(pygame.font.get_default_font(), 50)
+
+pygame.display.set_caption("WONZ")
+screen.fill((255, 255, 255))
+boxh=40
+boxw=40
+font = pygame.font.Font(pygame.font.get_default_font(), 50)
+font = pygame.font.SysFont("Courier", 40)
+def move():
+    for x in range(dlugosc, 0, -1) :
+        while hpos[x]!=hpos[x-1]:
+            hpos[x][0] = hpos[x - 1][0]
+            hpos[x][1] = hpos[x - 1][1]
+            hpos[0][0] = newpos[0][0]
+            hpos[0][1] = newpos[0][1]
+
+
+
+text="GAME OVER"
+text2="Press 'space' to try again"
+over = font.render(text, True, (255, 0, 0), (0, 0, 0))
+over2 = font.render(text2, True, (180, 180, 180), (0, 0, 0))
+textsize = font.size(text)
+text2size = font.size(text2)
+def gameover():
+    global speed
+    for x in range(1, dlugosc):
+        if newpos[0]==hpos[x] and score>0:
+            speed=0
+            return True
+
+
+
+
+def wonz():
+    for x in range(dlugosc):
+        pygame.draw.rect(screen, BLACK, (hpos[x][0]+2, hpos[x][1]+2, boxh, boxw))
+        pygame.draw.rect(screen, BLACK, (hpos[x][0]-2, hpos[x][1]-2, boxh, boxw))
+        pygame.draw.rect(screen, GREEN, (hpos[x][0], hpos[x][1], boxh, boxw))
+    pygame.draw.rect(screen, ORANGE, (newpos[0][0], newpos[0][1], boxh, boxw))
+
+
+running = True
+hpos=[[320,200],[280,200],[240,200],[160,200],[120,200]]
+fruit=[['','']]
+
+speed = 40
+dir="left"
+newpos=[[160,200]]
+fruitstate = 0
+score=0
+while running :
+    wynik = font.render("Score:" + str(score), True, (255, 255, 255), (0, 0, 0))
+
+
+    dlugosc = len(hpos)-1
+    if dir == "right" :
+        pygame.time.delay(80)
+        newpos[0][0] += speed
+    elif dir == "down" :
+        pygame.time.delay(80)
+        newpos[0][1] += speed
+    elif dir == "left" :
+        pygame.time.delay(80)
+        newpos[0][0] -= speed
+    elif dir == "up" :
+        pygame.time.delay(80)
+        newpos[0][1] -= speed
+    screen.fill((0, 0, 0))
+    gameover()
+    if gameover():
+        screen.blit(over, ((resx/2-textsize[0]/2), resy/2))
+        screen.blit(over2, ((resx / 2 - text2size[0] / 2), (resy / 2)+100))
+
+    move()
+
+    for event in pygame.event.get() :
+        if event.type == pygame.QUIT :
+            running = False
+    key = pygame.key.get_pressed()
+    if key[pygame.K_DOWN] and dir!="up":
+        dir="down"
+    elif key[pygame.K_RIGHT] and dir!="left":
+        dir="right"
+    elif key[pygame.K_LEFT] and dir!="right" :
+        dir="left"
+    elif key[pygame.K_UP] and dir!="down":
+        dir="up"
+
+    elif key[pygame.K_SPACE] :
+        speed = 40
+        newpos = [[160, 200]]
+        hpos = [[320, 200], [280, 200], [240, 200], [160, 200], [120, 200]]
+        dlugosc = len(hpos) - 1
+        dir="left"
+    screen.blit(wynik, (0, 0))
+    if fruitstate==0:
+        x = random.randint(1, 19)
+        y = random.randint(1, 14)
+        fruit[0][0] = x * 40
+        fruit[0][1] = y * 40
+        fruitstate = 1
+    if fruitstate==1:
+        pygame.draw.rect(screen, RED, (fruit[0][0], fruit[0][1], boxh, boxw))
+    if hpos[0]==fruit[0]:
+        hpos.append([0,0])
+        score+=1
+        fruitstate=0
+    wonz()
+    if newpos[0][0] > resx:
+        newpos[0][0] = 0
+    if newpos[0][0] < 0:
+        newpos[0][0] = resx
+    if newpos[0][1] > resy:
+        newpos[0][1] = 0
+    if newpos[0][1] < 0:
+        newpos[0][1]=resy
+
+
+
+    clock.tick(60)
+    pygame.display.update()
